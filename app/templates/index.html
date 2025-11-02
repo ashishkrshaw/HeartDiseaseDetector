@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/1533/1533907.png">
+  <title>Heart Disease Risk Predictor</title>
+
+  <style>
+    /* --- Base Styles --- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      background: #1a1a2e;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      width: 95%;
+      max-width: 700px;
+      background: #16213e;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      padding: 40px;
+      text-align: center;
+      animation: fadeIn 0.7s ease-in-out;
+    }
+
+    h1 {
+      color: #e11d48;
+      margin-bottom: 10px;
+      font-size: 1.8rem;
+    }
+
+    p {
+      color: #cbd5e1;
+      font-size: 0.95rem;
+      margin-bottom: 25px;
+    }
+
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .modal-content {
+      background-color: #16213e;
+      margin: 5% auto;
+      padding: 30px;
+      border: 2px solid #e11d48;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+    }
+
+    .modal-header {
+      color: #e11d48;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .close {
+      color: #cbd5e1;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .close:hover {
+      color: #e11d48;
+    }
+
+    .bmi-input-group {
+      margin-bottom: 15px;
+      text-align: left;
+    }
+
+    .bmi-label {
+      display: block;
+      color: #cbd5e1;
+      font-weight: 500;
+      margin-bottom: 5px;
+      font-size: 0.9rem;
+    }
+
+    .bmi-unit-selector {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .unit-btn {
+      flex: 1;
+      padding: 8px;
+      border: 2px solid #334155;
+      background: #1e293b;
+      color: #cbd5e1;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: 0.3s;
+    }
+
+    .unit-btn.active {
+      background: #e11d48;
+      border-color: #e11d48;
+      color: white;
+    }
+
+    .bmi-input-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .bmi-modal-input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 2px solid #334155;
+      border-radius: 6px;
+      background: #1e293b;
+      color: #e2e8f0;
+      font-size: 0.95rem;
+      transition: 0.3s;
+    }
+
+    .bmi-modal-input:focus {
+      outline: none;
+      border-color: #e11d48;
+      box-shadow: 0 0 8px rgba(225, 29, 72, 0.3);
+    }
+
+    .bmi-result-box {
+      background: #0f3460;
+      border: 2px solid #334155;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 15px 0;
+      text-align: center;
+      display: none;
+    }
+
+    .bmi-result-box.show {
+      display: block;
+    }
+
+    .bmi-result-value {
+      font-size: 2rem;
+      color: #e11d48;
+      font-weight: 700;
+      margin: 10px 0;
+    }
+
+    .bmi-result-category {
+      color: #cbd5e1;
+      font-size: 1rem;
+    }
+
+    .modal-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .btn-calculate {
+      padding: 10px;
+      background: #e11d48;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+      font-size: 0.95rem;
+    }
+
+    .btn-calculate:hover {
+      background: #be123c;
+    }
+    
+
+    .btn-use-bmi {
+      padding: 10px;
+      background: #16a34a;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+      font-size: 0.95rem;
+    }
+
+    .btn-use-bmi:hover {
+      background: #15803d;
+    }
+
+    .btn-cancel {
+      padding: 10px;
+      background: #64748b;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+      font-size: 0.95rem;
+    }
+
+    .btn-cancel:hover {
+      background: #475569;
+    }
+
+    .bmi-calculator-btn {
+      padding: 6px 12px;
+      background: #0f3460;
+      color: #e11d48;
+      border: 2px solid #e11d48;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.8rem;
+      transition: 0.3s;
+      margin-left: 8px;
+    }
+
+    .bmi-calculator-btn:hover {
+      background: #e11d48;
+      color: white;
+    }
+
+    form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    fieldset {
+      border: 2px solid #e2e8f0 !important;
+      border-radius: 8px !important;
+      padding: 15px !important;
+      margin-bottom: 20px !important;
+      background: #0f3460;
+    }
+
+    legend {
+      color: #cbd5e1 !important;
+      font-weight: 600 !important;
+      padding: 0 10px !important;
+      font-size: 1rem !important;
+    }
+
+    fieldset > div {
+      margin-bottom: 15px;
+    }
+
+    label {
+      text-align: left;
+      color: #cbd5e1;
+      font-size: 0.9rem;
+      font-weight: 500;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    label span {
+      color: #ff6b6b;
+    }
+
+    small {
+      display: block;
+      color: #94a3b8;
+      font-size: 0.8rem;
+      margin-bottom: 5px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 2px solid #334155;
+      border-radius: 6px;
+      outline: none;
+      transition: 0.3s;
+      background: #1e293b;
+      color: #e2e8f0;
+      font-size: 0.95rem;
+    }
+
+    input::placeholder {
+      color: #64748b;
+    }
+
+    input:focus, select:focus {
+      border-color: #e11d48;
+      box-shadow: 0 0 8px rgba(225, 29, 72, 0.3);
+      background: #334155;
+    }
+
+    button {
+      grid-column: span 2;
+      background: #e11d48;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.3s;
+      font-weight: 600;
+    }
+
+    button:hover {
+      background: #be123c;
+      box-shadow: 0 5px 20px rgba(225, 29, 72, 0.4);
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    #result {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-top: 10px;
+      color: #e2e8f0;
+    }
+
+    #helpBox {
+      background: #0f3460 !important;
+      color: #cbd5e1 !important;
+      border: 2px solid #334155;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+      font-size: 0.85rem;
+      display: none !important;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 600px) {
+      form {
+        grid-template-columns: 1fr;
+      }
+      button {
+        grid-column: 1;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- BMI Calculator Modal -->
+  <div id="bmiModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeBmiModal()">&times;</span>
+      <div class="modal-header">📊 BMI Calculator</div>
+      
+      <!-- Weight Unit Selector -->
+      <div style="margin-bottom: 15px;">
+        <label class="bmi-label">Weight Unit</label>
+        <div class="bmi-unit-selector" style="margin-bottom: 0;">
+          <button class="unit-btn active" onclick="setWeightUnit('kg')" style="flex: 1;">Kilograms (kg)</button>
+          <button class="unit-btn" onclick="setWeightUnit('lb')" style="flex: 1;">Pounds (lb)</button>
+        </div>
+      </div>
+
+      <!-- Weight Input -->
+      <div class="bmi-input-group">
+        <label class="bmi-label">Weight <span id="weightUnitLabel">(kg)</span></label>
+        <input type="number" id="bmiWeight" class="bmi-modal-input" placeholder="e.g., 75" />
+      </div>
+
+      <!-- Height Unit Selector -->
+      <div style="margin-bottom: 15px;">
+        <label class="bmi-label">Height Unit</label>
+        <div class="bmi-unit-selector" style="margin-bottom: 0;">
+          <button class="unit-btn active" onclick="setHeightUnit('cm')" style="flex: 1;">Centimeters (cm)</button>
+          <button class="unit-btn" onclick="setHeightUnit('ft-in')" style="flex: 1;">Feet/Inches</button>
+        </div>
+      </div>
+
+      <!-- Height Input (Centimeters) -->
+      <div id="heightCmInput" class="bmi-input-group">
+        <label class="bmi-label">Height (cm)</label>
+        <input type="number" id="bmiHeight" class="bmi-modal-input" placeholder="e.g., 175" />
+      </div>
+
+      <!-- Height Input (Feet/Inches) -->
+      <div id="heightFtInInput" class="bmi-input-group" style="display: none;">
+        <label class="bmi-label">Height</label>
+        <div class="bmi-input-row">
+          <div>
+            <small style="color: #94a3b8; display: block; margin-bottom: 5px;">Feet</small>
+            <input type="number" id="bmiFeet" class="bmi-modal-input" placeholder="e.g., 5" />
+          </div>
+          <div>
+            <small style="color: #94a3b8; display: block; margin-bottom: 5px;">Inches</small>
+            <input type="number" id="bmiInches" class="bmi-modal-input" placeholder="e.g., 9" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Result Display -->
+      <div id="bmiResultBox" class="bmi-result-box">
+        <div class="bmi-result-category" id="bmiResultCategory">Your BMI</div>
+        <div class="bmi-result-value" id="bmiResultValue">--</div>
+        <div class="bmi-result-category" id="bmiResultStatus">Calculating...</div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="modal-buttons">
+        <button class="btn-calculate" onclick="calculateBMI()">🧮 Calculate BMI</button>
+        <button class="btn-use-bmi" onclick="useBMI()" id="useBmiBtn" style="display: none;">✓ Use This BMI</button>
+        <button class="btn-cancel" onclick="closeBmiModal()" style="grid-column: span 2;">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h1>❤️ Heart Disease Risk Predictor</h1>
+    <p>Enter your health details below to predict your heart disease risk.</p>
+
+    <form id="predictForm">
+      <!-- PERSONAL INFORMATION -->
+      <fieldset style="grid-column: span 2; border: 2px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+        <legend style="color: #1e293b; font-weight: 600; padding: 0 10px;">👤 Personal Information</legend>
+        
+        <div style="margin-bottom: 15px;">
+          <label>Age <span style="color: #e11d48;">*</span></label>
+          <small style="display: block; color: #64748b; margin-bottom: 5px;">Your age in years (example: 50)</small>
+          <input type="number" id="age" min="18" max="120" placeholder="e.g., 50" required />
+        </div>
+      </fieldset>
+
+      <!-- LIFESTYLE HABITS -->
+      <fieldset style="grid-column: span 2; border: 2px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+        <legend style="color: #1e293b; font-weight: 600; padding: 0 10px;">🚬 Lifestyle Habits</legend>
+        
+        <div style="margin-bottom: 15px;">
+          <label>How many cigarettes per day? <span style="color: #e11d48;">*</span></label>
+          <small style="display: block; color: #64748b; margin-bottom: 5px;">If you don't smoke, enter 0 (example: 0, 5, 20)</small>
+          <input type="number" id="cigsPerDay" min="0" placeholder="e.g., 0" required />
+        </div>
+      </fieldset>
+
+      <!-- BLOOD MEASUREMENTS -->
+      <fieldset style="grid-column: span 2; border: 2px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+        <legend style="color: #1e293b; font-weight: 600; padding: 0 10px;">🩺 Blood Measurements (From doctor or lab test)</legend>
+        
+        <div style="margin-bottom: 15px;">
+          <label>Total Cholesterol <span style="color: #e11d48;">*</span></label>
+          <small style="display: block; color: #64748b; margin-bottom: 5px;">mg/dL from blood test (normal: 200 or less) - Example: 200</small>
+          <input type="number" id="totChol" placeholder="e.g., 200" required />
+        </div>
+
+        <div style="margin-bottom: 15px;">
+          <label>Blood Pressure - Upper Number (Systolic) <span style="color: #e11d48;">*</span></label>
+          <small style="display: block; color: #64748b; margin-bottom: 5px;">If BP is 130/85, enter 130 (the first number) - Normal: 120</small>
+          <input type="number" id="sysBP" placeholder="e.g., 130" required />
+        </div>
+
+        <div style="margin-bottom: 15px;">
+          <label>Blood Pressure - Lower Number (Diastolic) <span style="color: #e11d48;">*</span></label>
+          <small style="display: block; color: #64748b; margin-bottom: 5px;">If BP is 130/85, enter 85 (the second number) - Normal: 80</small>
+          <input type="number" id="diaBP" placeholder="e.g., 85" required />
+        </div>
+
+        <div style="margin-bottom: 15px;">
+          <label>Blood Sugar (Glucose) <span style="color: #e11d48;">*</span></label>
+          <small style="display: block; color: #64748b; margin-bottom: 5px;">mg/dL from blood test (normal fasting: 70-100) - Example: 100</small>
+          <input type="number" id="glucose" placeholder="e.g., 100" required />
+        </div>
+      </fieldset>
+
+      <!-- BODY MEASUREMENTS -->
+      <fieldset style="grid-column: span 2; border: 2px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+        <legend style="color: #1e293b; font-weight: 600; padding: 0 10px;">⚖️ Body Measurements</legend>
+        
+        <div style="margin-bottom: 15px;">
+          <label>⚖️ BMI (Body Mass Index) <span style="color: #e11d48;">*</span></label>
+          <small style="display: block; color: #94a3b8; margin-bottom: 5px;">Use the calculator below or Google "BMI calculator" - Example: 25.5</small>
+          <div style="display: flex; gap: 10px; align-items: flex-end;">
+            <input type="number" id="BMI" step="0.1" placeholder="e.g., 25.5" required style="flex: 1;" />
+            <button type="button" class="bmi-calculator-btn" onclick="openBmiModal()">📊 Calculate</button>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+          <label>Heart Rate (Resting) <span style="color: #e11d48;">*</span></label>
+          <small style="display: block; color: #64748b; margin-bottom: 5px;">Beats per minute - sit for 5 min, count your pulse (normal: 60-70) - Example: 70</small>
+          <input type="number" id="heartRate" placeholder="e.g., 70" required />
+        </div>
+      </fieldset>
+
+      <button type="submit" style="grid-column: span 2; font-size: 1.1rem; padding: 12px;">🔍 Predict My Risk</button>
+    </form>
+
+    <div style="background: #f0f4f8; padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 0.85rem; color: #475569; display: none;" id="helpBox">
+      <strong>📋 Typical Values:</strong><br>
+      Age: 18-100 | Cholesterol: 100-300 | BP: 90-180 / 60-110 | BMI: 15-40 | Heart Rate: 40-100 | Glucose: 70-200
+    </div>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    // Handle Form Submit
+    document.getElementById("predictForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const data = {
+        age: parseFloat(document.getElementById("age").value),
+        cigsPerDay: parseFloat(document.getElementById("cigsPerDay").value),
+        totChol: parseFloat(document.getElementById("totChol").value),
+        sysBP: parseFloat(document.getElementById("sysBP").value),
+        diaBP: parseFloat(document.getElementById("diaBP").value),
+        BMI: parseFloat(document.getElementById("BMI").value),
+        heartRate: parseFloat(document.getElementById("heartRate").value),
+        glucose: parseFloat(document.getElementById("glucose").value),
+      };
+
+      const resultEl = document.getElementById("result");
+      resultEl.innerHTML = '<p style="color: #94a3b8;">⏳ Analyzing your health data...</p>';
+
+      try {
+        const response = await fetch('/api/predict', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || `Server error: ${response.status}`);
+        }
+
+        const result = await response.json();
+        
+        const probability = (result.probability * 100).toFixed(1);
+        const riskText = result.prediction === 1 
+          ? "⚠️ HIGH RISK OF HEART DISEASE" 
+          : "✅ LOW RISK OF HEART DISEASE";
+        const riskColor = result.prediction === 1 ? "#dc2626" : "#16a34a";
+
+        resultEl.innerHTML = `
+          <div style="font-size: 1.2rem; margin-top: 20px; background: #0f3460; padding: 20px; border-radius: 8px; border: 2px solid #334155;">
+            <p style="color: ${riskColor}; font-weight: bold; font-size: 1.3rem;">${riskText}</p>
+            <p style="color: #cbd5e1; margin-top: 10px;">Probability: <strong style="color: #e2e8f0;">${probability}%</strong></p>
+            <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 15px;">💡 <em>This is a prediction based on your input. Always consult a doctor for medical advice.</em></p>
+          </div>
+        `;
+      } catch (error) {
+        console.error('Error:', error);
+        resultEl.innerHTML = `
+          <div style="background: #5a1a1a; color: #ff6b6b; padding: 15px; border-radius: 8px; margin-top: 20px; border: 2px solid #ff6b6b;">
+            <p style="font-weight: bold; font-size: 1.1rem;">❌ Connection Error</p>
+            <p>${error.message || 'Failed to reach the server'}</p>
+            <p style="font-size: 0.9rem; margin-top: 10px; color: #ff8787;">
+              Make sure the Flask server is running (python server.py)
+            </p>
+          </div>
+        `;
+      }
+    });
+  </script>
+
+  <script>
+    // BMI Calculator Functions
+    let currentBMI = 0;
+    let weightUnit = 'kg';  // 'kg' or 'lb'
+    let heightUnit = 'cm';  // 'cm' or 'ft-in'
+
+    function openBmiModal() {
+      document.getElementById('bmiModal').style.display = 'block';
+    }
+
+    function closeBmiModal() {
+      document.getElementById('bmiModal').style.display = 'none';
+      document.getElementById('bmiResultBox').classList.remove('show');
+      document.getElementById('useBmiBtn').style.display = 'none';
+    }
+
+    function setWeightUnit(unit) {
+      weightUnit = unit;
+      const buttons = document.querySelectorAll('.bmi-unit-selector')[0].querySelectorAll('.unit-btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      const label = document.getElementById('weightUnitLabel');
+      label.textContent = unit === 'kg' ? '(kg)' : '(lb)';
+      
+      const input = document.getElementById('bmiWeight');
+      input.placeholder = unit === 'kg' ? 'e.g., 75' : 'e.g., 165';
+    }
+
+    function setHeightUnit(unit) {
+      heightUnit = unit;
+      const buttons = document.querySelectorAll('.bmi-unit-selector')[1].querySelectorAll('.unit-btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      if (unit === 'cm') {
+        document.getElementById('heightCmInput').style.display = 'block';
+        document.getElementById('heightFtInInput').style.display = 'none';
+      } else {
+        document.getElementById('heightCmInput').style.display = 'none';
+        document.getElementById('heightFtInInput').style.display = 'block';
+      }
+    }
+
+    function calculateBMI() {
+      let weight = 0;
+      let heightInMeters = 0;
+      
+      // Get weight (convert to kg if needed)
+      const weightInput = parseFloat(document.getElementById('bmiWeight').value);
+      if (!weightInput || weightInput <= 0) {
+        alert('Please enter valid weight');
+        return;
+      }
+      weight = weightUnit === 'kg' ? weightInput : weightInput / 2.20462; // lb to kg
+      
+      // Get height (convert to meters if needed)
+      if (heightUnit === 'cm') {
+        const heightCm = parseFloat(document.getElementById('bmiHeight').value);
+        if (!heightCm || heightCm <= 0) {
+          alert('Please enter valid height in cm');
+          return;
+        }
+        heightInMeters = heightCm / 100;
+      } else {
+        const feet = parseFloat(document.getElementById('bmiFeet').value);
+        const inches = parseFloat(document.getElementById('bmiInches').value) || 0;
+        if (!feet || feet <= 0) {
+          alert('Please enter valid height');
+          return;
+        }
+        const totalInches = (feet * 12) + inches;
+        heightInMeters = totalInches * 0.0254; // inches to meters
+      }
+      
+      // Calculate BMI
+      const bmi = weight / (heightInMeters * heightInMeters);
+      currentBMI = parseFloat(bmi.toFixed(1));
+      
+      // Determine category
+      let category = '';
+      let categoryColor = '';
+      if (currentBMI < 18.5) {
+        category = 'Underweight';
+        categoryColor = '#3b82f6';
+      } else if (currentBMI < 25) {
+        category = 'Normal Weight';
+        categoryColor = '#16a34a';
+      } else if (currentBMI < 30) {
+        category = 'Overweight';
+        categoryColor = '#f59e0b';
+      } else {
+        category = 'Obese';
+        categoryColor = '#dc2626';
+      }
+      
+      document.getElementById('bmiResultValue').textContent = currentBMI;
+      document.getElementById('bmiResultValue').style.color = categoryColor;
+      document.getElementById('bmiResultStatus').innerHTML = `<strong>${category}</strong>`;
+      document.getElementById('bmiResultBox').classList.add('show');
+      document.getElementById('useBmiBtn').style.display = 'block';
+    }
+
+    function useBMI() {
+      document.getElementById('BMI').value = currentBMI;
+      closeBmiModal();
+      document.getElementById('BMI').focus();
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+      const modal = document.getElementById('bmiModal');
+      if (event.target === modal) {
+        closeBmiModal();
+      }
+    }
+
+    // Allow Enter key to calculate BMI
+    document.addEventListener('keypress', function(event) {
+      if (event.key === 'Enter') {
+        const modal = document.getElementById('bmiModal');
+        if (modal.style.display === 'block') {
+          calculateBMI();
+          event.preventDefault();
+        }
+      }
+    });
+  </script>
