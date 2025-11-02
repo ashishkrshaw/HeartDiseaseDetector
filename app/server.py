@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask_cors import CORS
 import os
 import joblib
 import numpy as np
@@ -9,6 +10,7 @@ MODEL_PATH = os.path.join(MODEL_DIR, "logistic_model.pkl")
 SCALER_PATH = os.path.join(MODEL_DIR, "scaler.pkl")
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # Favicon handler to suppress 404 errors
 @app.route('/favicon.ico')

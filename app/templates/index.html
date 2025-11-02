@@ -531,6 +531,8 @@
   </div>
 
   <script>
+    const API_BASE_URL = 'https://heartdiseasedetector.onrender.com';
+
     // Handle Form Submit
     document.getElementById("predictForm").addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -550,7 +552,7 @@
       resultEl.innerHTML = '<p style="color: #94a3b8;">⏳ Analyzing your health data...</p>';
 
       try {
-        const response = await fetch('/api/predict', {
+  const response = await fetch(`${API_BASE_URL}/api/predict`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -585,7 +587,7 @@
             <p style="font-weight: bold; font-size: 1.1rem;">❌ Connection Error</p>
             <p>${error.message || 'Failed to reach the server'}</p>
             <p style="font-size: 0.9rem; margin-top: 10px; color: #ff8787;">
-              Make sure the Flask server is running (python server.py)
+              Make sure the prediction API at heartdiseasedetector.onrender.com is reachable.
             </p>
           </div>
         `;
